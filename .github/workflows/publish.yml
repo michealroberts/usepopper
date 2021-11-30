@@ -1,0 +1,79 @@
+name: usepopper/publish
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  ci:
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      matrix:
+        os: [ubuntu-latest]
+        node: [14]
+
+    env:
+      NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      NPM_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    steps:
+      - name: Checkout 🛎
+        uses: actions/checkout@master
+
+      # Setup .npmrc file to publish to GitHub Packages
+      - name: Setup node env 🏗 and .npmrc file to publish to GitHub Packages
+        uses: actions/setup-node@v2.1.2
+        with:
+          node-version: ${{ matrix.node }}
+          registry-url: 'https://npm.pkg.github.com'
+          # Defaults to the user or organization that owns the workflow file:
+          scope: '@observerly'
+
+      - name: Cache node_modules 📦
+        uses: actions/cache@v2
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+
+      - name: Install project dependencies 👨🏻‍💻
+        run: npm ci
+
+      - name: Run jest tests 🧪
+        run: npm run test -- --collectCoverage
+
+      - name: Run eslint 🧪
+        run: npm run lint
+
+      - name: Build the package ready for publishing
+        run: npm run build
+
+      - name: Check the current published package.json version
+        run: |
+          PACKAGE_VERSION_PUBLISHED=$(npm view @observerly/celestia version)
+          echo "::set-output name=PACKAGE_VERSION_PUBLISHED::$PACKAGE_VERSION_PUBLISHED"
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract package.json version number
+        run: |
+          PACKAGE_VERSION=$(cat package.json \
+            | grep version \
+            | head -1 \
+            | awk -F: '{print $2}' \
+            | sed 's/[",]//g' \
+            | xargs)
+          echo "::set-output name=PACKAGE_VERSION::$PACKAGE_VERSION"
+
+      - uses: JS-DevTools/npm-publish@v1
+        with:
+          registry: 'https://npm.pkg.github.com'
+          token: ${{ secrets.GITHUB_TOKEN }}
+          check-version: true
+      
+      - if: steps.publish.outputs.type != 'none'
+        run: |
+          echo "Celestia package version changed: ${{ steps.publish.outputs.old-version }} => ${{ steps.publish.outputs.version }}"
