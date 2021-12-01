@@ -1,11 +1,11 @@
 {
   "name": "@observerly/usepopper",
   "author": "Michael J. Roberts (observerly Ltd)",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "A composables Vue 3 library for using the popper.js library.",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/observerly/usepopper.git"
+    "url": "git+https://github.com/michael-observerly/usepopper.git"
   },
   "prepublish": "tsc",
   "publishConfig": {
