@@ -27,9 +27,6 @@ jobs:
         uses: actions/setup-node@v2.1.2
         with:
           node-version: ${{ matrix.node }}
-          registry-url: 'https://registry.npmjs.org'
-          # Defaults to the user or organization that owns the workflow file:
-          scope: '@observerly'
 
       - name: Cache node_modules 📦
         uses: actions/cache@v2
