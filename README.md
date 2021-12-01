@@ -1,1 +1,1 @@
-# usepopper Vue 3 Composables by observerly
+# usePopper Vue 3 Composable
