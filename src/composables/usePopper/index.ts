@@ -6,12 +6,16 @@ import {
   createPopper, preventOverflow, flip, Instance, Options, StrictModifiers
 } from '@popperjs/core'
 
-export type UsePopperOptions = Partial<Options>
+export interface UsePopperOptions extends Partial < Options > {
+  enableListeners?: boolean
+}
 
 export interface UsePopperReturn {
   isShown: Ref<boolean>
   popper: Ref<Instance | null>
   create: () => void
+  update: () => void
+  forceUpdate: () => void
   show: () => void
   hide: () => void
   toggle: () => void
@@ -22,7 +26,7 @@ export const usePopper = (
   tooltip: Ref<HTMLElement | null>,
   options: UsePopperOptions
 ): UsePopperReturn => {
-  const { placement = 'top', modifiers = [preventOverflow, flip], strategy = 'fixed' } = options
+  const { placement = 'top', modifiers = [preventOverflow, flip], strategy = 'fixed', enableListeners = true } = options
 
   const popperInstance = ref<Instance | null>(null)
 
@@ -33,6 +37,18 @@ export const usePopper = (
         modifiers,
         strategy
       })
+    }
+  }
+
+  const update = () => {
+    if (popperInstance.value) {
+      popperInstance.value.update()
+    }
+  }
+
+  const forceUpdate = () => {
+    if (popperInstance.value) {
+      popperInstance.value.forceUpdate()
     }
   }
 
@@ -50,13 +66,13 @@ export const usePopper = (
         ...options,
         modifiers: [...modifiers, {
           name: 'eventListeners',
-          enabled: true
+          enabled: enableListeners
         }]
       }))
 
       // We need to tell Popper to update the tooltip position
       // after we show the tooltip, otherwise it will be incorrect
-      popperInstance.value.forceUpdate()
+      forceUpdate()
     }
   }
 
@@ -72,7 +88,7 @@ export const usePopper = (
         ...options,
         modifiers: [...modifiers, {
           name: 'eventListeners',
-          enabled: false
+          enabled: enableListeners
         }]
       }))
     }
@@ -90,6 +106,8 @@ export const usePopper = (
     isShown,
     popper: popperInstance,
     create,
+    update,
+    forceUpdate,
     show,
     hide,
     toggle
