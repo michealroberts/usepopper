@@ -50,9 +50,9 @@ jobs:
 
       - uses: JS-DevTools/npm-publish@v1
         with:
-          registry: 'https://registry.npmjs.org/'
           access: 'public'
-          token: ${{ secrets.NPMJS_TOKEN }}
+          registry: 'https://npm.pkg.github.com'
+          token: ${{ secrets.GITHUB_TOKEN }}
           check-version: true
       
       - if: steps.publish.outputs.type != 'none'
