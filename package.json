@@ -5,7 +5,7 @@
   "description": "A composables Vue 3 library for using the popper.js library.",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/michael-observerly/usepopper.git"
+    "url": "git+https://github.com/observerly/usepopper.git"
   },
   "prepublish": "tsc",
   "publishConfig": {
